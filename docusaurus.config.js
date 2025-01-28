@@ -46,7 +46,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://sarchlab.org/',
         },
         blog: {
           showReadingTime: true,
@@ -74,23 +74,38 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: 'img/docusaurus-social-card.jpg',
+      image: 'img/SL_logo.svg',
       navbar: {
-        title: 'My Site',
+        title: 'SArchLab',
         logo: {
           alt: 'My Site Logo',
-          src: 'img/logo.svg',
+          src: 'img/SL_logo.svg',
         },
         items: [
           {
-            type: 'docSidebar',
-            sidebarId: 'tutorialSidebar',
+            type : 'docSidebar', 
+            sidebarId: 'akitaDocSidebar',
+            label: 'Akita',
             position: 'left',
-            label: 'Tutorial',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
           {
-            href: 'https://github.com/facebook/docusaurus',
+            type : 'docSidebar', 
+            sidebarId: 'mgpusimDocSidebar',
+            label: 'MGPUSim',
+            position: 'left',
+          },
+          // {
+          //   type: 'docSidebar',
+          //   sidebarId: 'tutorialSidebar',
+          //   position: 'left',
+          //   label: 'Tutorial',
+          // },
+          // {
+          //   to: '/blog', 
+          //   label: 'Blog', 
+          //   position: 'left'},
+          {
+            href: 'https://github.com/sarchlab',
             label: 'GitHub',
             position: 'right',
           },
@@ -134,12 +149,12 @@ const config = {
               },
               {
                 label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus',
+                href: 'https://github.com/sarchlab',
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} SarchLab, Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,
