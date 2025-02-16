@@ -123,3 +123,36 @@ func (t *SQLiteWriter) Flush() {
 ## 2.5.4 SQlite Reader
 
 `SQLiteReader` is devised to access recorded data. This struct’s design is very straightforward, as it only comprised of a pointer to `sql.DB` and string `filename`. After `SQLiteReader` is initialized, it opens the database of the given `filename`. If no SQL database of given name exists, an error will be thrown. This struct can access all table names written inside the databse through `ListTables()` function that returns a slice of strings, whose implementation is shown in the code below. 
+
+```go
+func (r *SQLiteReader) ListTables() []string {
+	tableNames := make([]string, 0)
+	query := `SELECT name FROM sqlite_master WHERE type='table';`
+
+	rows, err := r.Query(query)
+	if err != nil {
+		panic(err)
+	}
+
+	close := func() {
+		err := rows.Close()
+		if err != nil {
+			panic(err)
+		}
+	}
+	defer close()
+
+	for rows.Next() {
+		var tableName string
+
+		err := rows.Scan(&tableName)
+		if err != nil {
+			panic(err)
+		}
+
+		tableNames = append(tableNames, tableName)
+	}
+
+	return tableNames
+}
+```

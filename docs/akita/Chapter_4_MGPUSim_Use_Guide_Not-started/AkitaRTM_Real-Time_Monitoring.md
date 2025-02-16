@@ -1,0 +1,19 @@
+# AkitaRTM: Real-Time Monitoring
+
+**Author: Ali Mosallaei, Yifan Sun**
+
+- Insertions from AkitaRTM Preprint
+    
+## Introduction
+    
+Professional high-performance computing (HPC) applications have been driving the development of many technology sectors, such as drug discovery, health care, structure design, material discovery, urban planning, chip design, big-data analytics, and artificial intelligence. Typically, these HPC applications work in a manner where users provide some input, wait for a long time (possibly days to weeks) for results to be calculated, and collect and analyze the results. These long executions can lead to excessive turn-around times in R&D (i.e., the time required for researchers to perform evaluations and make computationally-backed design changes) and can decelerate scientific discovery and engineering innovation.
+    
+One way to shorten these delays and wait times is to allow users to analyze partial execution results while the execution is running. Runtime data analysis requires the application to provide useful outputs to the user during execution. However, existing methods that enable user interaction with HPC tools can be constrained. These applications usually dump large amounts of information to the command-line interface, causing problems of having too much and, at times, too little useful information to process in one sitting. As the application developer cannot predict what information users need, it may be tempting for the developer to dump more-than-necessary information into the terminal, overwhelming users. However, that output may still not include the information required by the user.
+    
+Solving the problem above requires applications to provide a method for users to look into the metaphorical "black box" of the application at run time. Existing work mainly solves the HPC monitoring problem as a technical one. Little work examines this problem from the lens of human-computer interaction and information aggregation. The HPC community still needs more extensive exploration and guidance on developing real-time monitoring tools. Thus provides the necessary context in which AkitaRTM, a real-time computer architecture simulator for HPC applications, is introduced. 
+    
+Utilizing the development of Akita RTM, a case study can be created for monitoring professional HPC applications based on a popular GPU simulator, MGPUSim. MGPUSim is an AMD-based GPU simulator that supports multi-GPU simulations. MGPUSim is selected because it provides a friendly programming interface and a drop-in plugin system that allows us to easily build a *modular* monitoring tool. However, the lessons learned from building this tool are not constrained to MGPUSim; they can be made generally applicable to a wide range of HPC applications.
+    
+The design and development of AkitaRTM is a multi-year process, primarily influenced by the interactions with other computer architecture researchers to understand their pain points (see the challenges section). Based on frequent and informal interviews with domain experts, we develop new features within AkitaRTM. After developing a new feature, we collect feedback and new feature requests. This process, being the basis of success for this tool, is iterated, based on challenges that continue to evolve in hardware development. Until today, the development process for AkitaRTM has experienced several of these discussion-design-feedback iterations, and is becoming mature enough to fulfill many common requirements computer architecture researchers look for in such a tool. Hence, this case study publishes AkitaRTM[^1], as well as summarizes the lessons learned through the design process.
+
+[^1]: AkitaRTM is open-sourced under the MIT license at [https://gitlab.com/akita/akita](https://gitlab.com/akita/akita). AkitaRTM will be a standard component of the Akita simulator framework in their upcoming v3.0 release.
