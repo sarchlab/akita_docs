@@ -1,1 +1,0 @@
-# Case Study: Wafer-Scale GPU Simulation

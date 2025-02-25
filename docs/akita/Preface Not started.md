@@ -1,3 +1,0 @@
-# Preface [Not started]
-
-## ACK
