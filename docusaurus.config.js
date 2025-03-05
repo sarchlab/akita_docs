@@ -45,7 +45,7 @@ const config = {
           sidebarPath: "./sidebars.js",
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: "https://sarchlab.org/",
+          editUrl: "https://github.com/sarchlab/akita_docs/blob/main",
         },
         blog: {
           showReadingTime: true,
