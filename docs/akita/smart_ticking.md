@@ -1,3 +1,8 @@
+---
+sidebar_position: 3
+---
+
+
 # Smart Ticking
 
 In [Event Driven Simulation](./event_driven_simulation.md), we have demonstrated that event-driven simulation can improve simulation performance by skipping part of the simulation. However, if a simulator is written in a pure event-driven simulation style, the code can get uncontrollably complex, especially when there are many events. 
