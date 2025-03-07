@@ -2,11 +2,11 @@
 sidebar_position: 4
 ---
 
-# 2.4 Hooking and Tracing [Ongoing]
+# Hooking and Tracing
 
 Simulator users usually want to export meaningful information from simulations for further analysis. In other simulators, data exporting is typically supported by adding variables and print commands to the component code. However, mixing the data-collecting code with component logic bloats the code and makes the software hard to maintain. Even worse, simulators tend to use Singletons to aggregate data (because all the instances can report data to a centralized location). We consider that Singletons significantly harm the flexibility of the code, making it difficult to adapt to users’ needs. To solve this problem and to ensure both flexibility and elegant code, we employ the Observer Pattern. Specifically, we introduce the Hooks and Tracers to decouple the hardware logic and the need to collect data from the simulator. 
 
-## 2.4.1 Hooks
+## Hooks
 
 A hook is a piece of software that can be called when certain actions happen. Such actions can be the start of an event handling or when an element is popped from a buffer. Everything related to Hooks is implemented in `sim/hook.go`.
 
@@ -70,7 +70,7 @@ engine = sim.NewSerialEngine()
 engine.AcceptHook(sim.NewEventLogger(log.New(os.Stdout, "", 0)))
 ```
 
-## 2.4.1 Basic Concepts of Tracing
+## Basic Concepts of Tracing
 
 Hook provides the fundamental mechanism to collect data. However, it is a bit too flexible. Users and developers may need a more structured guidance on what data to collect. Therefore, we build the tracing system on top of the hooking system. 
 
