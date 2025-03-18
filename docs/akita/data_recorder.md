@@ -141,22 +141,43 @@ dataRecorder.Close()
 
 ## Reading from a Database
 
-To read data from a previously created database, you can use the Reader:
+To read data from a previously created database, you can use the DataReader interface:
 
 ```go
 reader := datarecording.NewReader("example.sqlite3")
-reader.MapTable("tasks", Task{})
 ```
 
-### Querying Data
-
-To query data from a table:
+You can also create a reader with an existing database connection:
 
 ```go
-results, columns, err := reader.Query("tasks", datarecording.QueryParams{})
+db, err := sql.Open("sqlite3", "example.sqlite3")
 if err != nil {
     panic(err)
 }
+reader := datarecording.NewReaderWithDB(db)
+```
+
+### Mapping Tables
+
+Before querying a table, you need to map it to a Go struct that matches the table structure:
+
+```go
+reader.MapTable("tasks", Task{})
+```
+
+The struct definition must match the structure of your table. Fields that were marked with `akita_data:"ignore"` when creating the table should still be included in your struct, but their values will not be populated.
+
+### Querying Data
+
+For basic queries, you can use the Query method with empty QueryParams:
+
+```go
+results, count, err := reader.Query("tasks", datarecording.QueryParams{})
+if err != nil {
+    panic(err)
+}
+
+fmt.Printf("Found %d records out of %d total\n", len(results), count)
 
 for _, result := range results {
     task := result.(*Task)
@@ -164,7 +185,42 @@ for _, result := range results {
 }
 ```
 
-When you're done with the reader, close it:
+### Advanced Queries
+
+The QueryParams struct provides several options for filtering, sorting, and pagination:
+
+```go
+results, _, err := reader.Query("tasks", datarecording.QueryParams{
+    Where: "ID > ? AND Name LIKE ?",
+    Args: []any{5, "Task%"},
+    OrderBy: "ID DESC",
+    Limit: 10,
+    Offset: 20,
+})
+```
+
+The QueryParams struct has the following fields:
+
+- `Where`: SQL WHERE clause without the "WHERE" keyword (e.g., "timestamp > ? AND category = ?")
+- `Args`: Arguments for the placeholders in the Where clause
+- `Limit`: Maximum number of records to return (set to 0 for no limit)
+- `Offset`: Number of records to skip (for pagination)
+- `OrderBy`: Sorting criteria without the "ORDER BY" keywords (e.g., "timestamp DESC")
+
+### Listing Tables
+
+To get a list of all mapped tables:
+
+```go
+tableNames := reader.ListTables()
+for _, name := range tableNames {
+    fmt.Println("Table:", name)
+}
+```
+
+### Closing the Reader
+
+When you're done with the reader, you should close it:
 
 ```go
 reader.Close()
@@ -172,7 +228,7 @@ reader.Close()
 
 ## Complete Example
 
-Here's a complete example of using the data recorder:
+Here's a complete example of using the data recorder and reader:
 
 ```go
 package main
@@ -209,12 +265,32 @@ func main() {
     reader := datarecording.NewReader(dbPath + ".sqlite3")
     reader.MapTable("test_table", Task{})
     
-    results, _, err := reader.Query("test_table", datarecording.QueryParams{})
+    // Simple query to get all records
+    results, count, err := reader.Query("test_table", datarecording.QueryParams{})
     if err != nil {
         panic(err)
     }
     
+    fmt.Printf("Found %d records out of %d total\n", len(results), count)
+    
     for _, result := range results {
+        task := result.(*Task)
+        fmt.Printf("ID: %d, Name: %s\n", task.ID, task.Name)
+    }
+    
+    // Advanced query with filtering and sorting
+    filteredResults, _, err := reader.Query("test_table", datarecording.QueryParams{
+        Where:   "ID > ?",
+        Args:    []any{1},
+        OrderBy: "Name ASC",
+    })
+    
+    if err != nil {
+        panic(err)
+    }
+    
+    fmt.Println("Filtered results:")
+    for _, result := range filteredResults {
         task := result.(*Task)
         fmt.Printf("ID: %d, Name: %s\n", task.ID, task.Name)
     }
