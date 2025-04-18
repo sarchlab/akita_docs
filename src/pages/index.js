@@ -12,17 +12,24 @@ function HomepageHeader() {
   return (
     <header className={clsx("hero hero--primary", styles.heroBanner)}>
       <div className="container">
-        <Heading as="h1" className="hero__title">
-          {siteConfig.title}
-        </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
-        <div className={styles.buttons}>
+        <div>
           <Link
-            className="button button--secondary button--lg"
-            // to="/docs/intro"
+            className="hero__logo"
+            to={siteConfig.customFields.akitalink}
+            target="_blank"
           >
-            Docusaurus Tutorial - 5min ⏱️
+            <img
+              src="/img/akita_logo.png"
+              alt="Akita Logo"
+              className="hero__logo--img"
+            />
           </Link>
+        </div>
+        <div>
+          <Heading as="h1" className="hero__title">
+            {siteConfig.title}
+          </Heading>
+          <p className="hero__subtitle">{siteConfig.tagline}</p>
         </div>
       </div>
     </header>

@@ -11,11 +11,12 @@ import { themes as prismThemes } from "prism-react-renderer";
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "Project Akita",
-  tagline: "Computer Architecture Simulation with Ease",
+  tagline:
+    "Computer architecture simulation with good user and developer experience",
   favicon: "img/favicon.ico",
 
   // Set the production url of your site here
-  url: "https://your-docusaurus-site.example.com",
+  url: "https://akitasim.dev",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
@@ -73,12 +74,12 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: "img/SL_logo.svg",
+      image: "img/akita_logo.png",
       navbar: {
-        title: "SArchLab",
+        title: "Akita",
         logo: {
-          alt: "My Site Logo",
-          src: "img/SL_logo.svg",
+          alt: "Akita Logo",
+          src: "img/akita_logo.png",
         },
         items: [
           {
@@ -114,7 +115,7 @@ const config = {
       footer: {
         style: "dark",
         links: [],
-        copyright: `Copyright © ${new Date().getFullYear()} SarchLab, Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} <a href="https://sarchlab.org">SarchLab</a>, Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,
