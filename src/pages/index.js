@@ -12,9 +12,9 @@ function HomepageHeader() {
   return (
     <header className={clsx("hero hero--primary", styles.heroBanner)}>
       <div className="container">
-        <div>
+        <div className="heroBanner">
           <Link
-            className="hero__logo"
+            className="heroLogo"
             to={siteConfig.customFields.akitalink}
             target="_blank"
           >
@@ -25,11 +25,11 @@ function HomepageHeader() {
             />
           </Link>
         </div>
-        <div>
-          <Heading as="h1" className="hero__title">
+        <div className="heroContent">
+          <Heading as="h1" className="heroTitle">
             {siteConfig.title}
           </Heading>
-          <p className="hero__subtitle">{siteConfig.tagline}</p>
+          <p className="heroSubtitle">{siteConfig.tagline}</p>
         </div>
       </div>
     </header>
