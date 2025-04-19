@@ -3,16 +3,60 @@
  * and scoped locally.
  */
 
+.heroLogoImg {
+  max-width: 12rem;
+}
+
 .heroBanner {
-  padding: 4rem 0;
+  width: 100%;
+  padding: 12rem 0;
   text-align: center;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: end;
+  gap: 4rem;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 600px;
+}
+
+.heroTitle {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.heroSubtitle {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  text-align: left;
+  line-height: 1.2;
 }
 
 @media screen and (max-width: 996px) {
   .heroBanner {
-    padding: 2rem;
+    padding: 8rem, 0;
+    gap: 4vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .heroContent {
+    align-items: center;
+    text-align: center;
+    align-self: center;
+  }
+
+  .heroSubtitle {
+    text-align: center;
   }
 }
 

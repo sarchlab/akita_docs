@@ -76,7 +76,7 @@ const config = {
       // Replace with your project's social card
       image: "img/akita_logo.png",
       navbar: {
-        title: "Akita",
+        title: "Project Akita",
         logo: {
           alt: "Akita Logo",
           src: "img/akita_logo.png",
