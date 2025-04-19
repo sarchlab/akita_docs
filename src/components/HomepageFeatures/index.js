@@ -4,32 +4,34 @@ import styles from "./styles.module.css";
 
 const FeatureList = [
   {
-    title: "Easy to Use",
+    title: "Easy to Build",
     Svg: require("@site/static/img/undraw_docusaurus_mountain.svg").default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Akita is designed to boost developer efficiency to quickly prototype
+        novel computer architectures.
       </>
     ),
   },
   {
-    title: "Focus on What Matters",
+    title: "High Performance",
     Svg: require("@site/static/img/undraw_docusaurus_tree.svg").default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Akita delivers high-performance computer architecture simulation through
+        innovative features like Smart Ticking, Availability Backpropagation,
+        and programmer-transparent parallel simulation.
       </>
     ),
   },
   {
-    title: "Powered by React",
+    title: "Observability & Explainability",
     Svg: require("@site/static/img/undraw_docusaurus_react.svg").default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Akita provides deep insights into simulations through AkitaRTM for
+        real-time monitoring and Daisen for detailed execution analysis, both
+        seamlessly supporting all Akita-based simulators.
       </>
     ),
   },

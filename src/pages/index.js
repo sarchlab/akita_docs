@@ -3,12 +3,15 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import HomepageFeatures from "@site/src/components/HomepageFeatures";
+import { useColorMode } from "@docusaurus/theme-common";
 
 import Heading from "@theme/Heading";
 import styles from "./index.module.css";
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
+  const { isDarkTheme } = useColorMode();
+
   return (
     <header className={clsx("hero hero--primary", styles.heroBanner)}>
       <Link
@@ -17,7 +20,11 @@ function HomepageHeader() {
         target="_blank"
       >
         <img
-          src="/img/akita_logo_white.png"
+          src={
+            isDarkTheme
+              ? "/img/akita_logo_dark.png"
+              : "/img/akita_logo_white.png"
+          }
           alt="Akita Logo"
           className={clsx("heroLogoImg", styles.heroLogoImg)}
         />
