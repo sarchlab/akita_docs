@@ -9,6 +9,7 @@ import Heading from "@theme/Heading";
 import styles from "./index.module.css";
 import HomepageSimulators from "../components/HomepageSimulators";
 import HomepageEvents from "../components/HomepageEvents";
+import HomepagePapers from "../components/HomepagePapers";
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
@@ -56,6 +57,7 @@ export default function Home() {
         <HomepageFeatures />
         <HomepageSimulators />
         <HomepageEvents />
+        <HomepagePapers />
       </main>
     </Layout>
   );
