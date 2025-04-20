@@ -13,7 +13,7 @@ import HomepagePapers from "../components/HomepagePapers";
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
-  const { isDarkTheme } = useColorMode();
+  const { isDarkTheme } = useColorMode().colorMode == "dark";
 
   return (
     <header className={clsx("hero hero--primary", styles.heroBanner)}>

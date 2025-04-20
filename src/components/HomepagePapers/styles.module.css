@@ -26,10 +26,16 @@
   color: var(--ifm-color-primary-darkest);
 }
 
+.subsectionTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: var(--ifm-color-primary-darkest);
+}
+
 .paperList {
   display: flex;
   flex-direction: column;
-  /* gap: 2rem; */
   list-style: none;
   color: var(--ifm-color-primary-darkest);
   padding-left: 0;
@@ -55,7 +61,51 @@
 }
 
 .paperCount {
-  font-size: 6em;
+  font-size: 10em;
   margin-left: 0.5rem;
+  font-weight: 100;
   color: var(--ifm-color-primary-darkest);
+}
+
+.showMoreContainer {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.showMoreButton {
+  background: none;
+  border: none;
+  color: var(--ifm-color-primary-darker);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.showMoreButton:hover {
+  color: var(--ifm-color-primary-dark);
+}
+
+html[data-theme="dark"] .eventSection {
+  background-color: var(--ifm-color-primary-darker);
+}
+
+html[data-theme="dark"] .sectionTitle,
+html[data-theme="dark"] .subsectionTitle,
+html[data-theme="dark"] .paperList,
+html[data-theme="dark"] .paperCount {
+  color: var(--ifm-color-prime-lighter);
+}
+
+html[data-theme="dark"] .paperTitle {
+  color: var(--ifm-color-prime-lighter);
+}
+
+html[data-theme="dark"] .showMoreButton {
+  color: var(--ifm-color-prime-light);
+}
+
+html[data-theme="dark"] .showMoreButton:hover {
+  color: var(--ifm-color-prime-light);
 }

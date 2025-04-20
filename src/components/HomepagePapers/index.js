@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Heading from "@theme/Heading";
 import styles from "./styles.module.css";
 
@@ -245,31 +246,48 @@ const designPapers = [
 ];
 
 function PaperList({ papers }) {
+  const [showAll, setShowAll] = useState(false);
+  const displayPapers = showAll ? papers : papers.slice(0, 5);
+
   return (
-    <ul className={styles.paperList}>
-      {papers.map((props, idx) => (
-        <li key={idx}>
-          {props.year && <span className={styles.paperYear}>{props.year}</span>}
-          ,{" "}
-          {props.link ? (
-            <a
-              href={props.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.paperTitle}
-            >
-              {props.title}
-            </a>
-          ) : (
-            <span>{props.title}</span>
-          )}
-          ,{" "}
-          {props.authors.length > 40
-            ? `${props.authors.substring(0, 40)}...`
-            : props.authors}
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul className={styles.paperList}>
+        {displayPapers.map((props, idx) => (
+          <li key={idx}>
+            {props.year && (
+              <span className={styles.paperYear}>{props.year}</span>
+            )}
+            ,{" "}
+            {props.link ? (
+              <a
+                href={props.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.paperTitle}
+              >
+                {props.title}
+              </a>
+            ) : (
+              <span>{props.title}</span>
+            )}
+            ,{" "}
+            {props.authors.length > 40
+              ? `${props.authors.substring(0, 40)}...`
+              : props.authors}
+          </li>
+        ))}
+      </ul>
+      {papers.length > 5 && (
+        <div className={styles.showMoreContainer}>
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className={styles.showMoreButton}
+          >
+            {showAll ? "Show less" : `Show more... (${papers.length - 5} more)`}
+          </button>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -281,12 +299,16 @@ export default function HomepageSimulators() {
         <div className={styles.row}>
           <div className={styles.col}>
             <div className={styles.paperCount}>#{simulatorPapers.length}</div>
-            <h3>Papers that Design/Improve Simulators</h3>
+            <h3 className={styles.subsectionTitle}>
+              Papers that Design/Improve Simulators
+            </h3>
             <PaperList papers={simulatorPapers} />
           </div>
           <div className={styles.col}>
             <div className={styles.paperCount}>#{designPapers.length}</div>
-            <h3>Papers that use Akita Simulators</h3>
+            <h3 className={styles.subsectionTitle}>
+              Papers that use Akita Simulators
+            </h3>
             <PaperList papers={designPapers} />
           </div>
         </div>
