@@ -2,40 +2,25 @@ import clsx from "clsx";
 import Heading from "@theme/Heading";
 import styles from "./styles.module.css";
 
-const FeatureList = [
+const SimulatorList = [
   {
-    title: "Easy to Build",
+    title: "MGPUSim",
     Svg: require("@site/static/img/undraw_docusaurus_mountain.svg").default,
-    description: (
-      <>
-        Boosted developer efficiency for quick prototyping of novel computer
-        designs with a modular and consistent framework.
-      </>
-    ),
+    description: <>A GPU simulator</>,
   },
   {
-    title: "High Performance",
+    title: "TrioSim",
     Svg: require("@site/static/img/undraw_docusaurus_tree.svg").default,
-    description: (
-      <>
-        High-performance simulation through features like Smart Ticking,
-        Availability Backpropagation, and parallel simulation.
-      </>
-    ),
+    description: <>Trace-driven simulator for DNN workload modeling.</>,
   },
   {
-    title: "Observability & Explainability",
+    title: "Zeonica",
     Svg: require("@site/static/img/undraw_docusaurus_react.svg").default,
-    description: (
-      <>
-        Deep insights into simulations through AkitaRTM for real-time monitoring
-        and Daisen for detailed execution analysis.
-      </>
-    ),
+    description: <>Zeonica is a simulator for data-flow architectures.</>,
   },
 ];
 
-function Feature({ Svg, title, description }) {
+function Simulator({ Svg, title, description }) {
   return (
     <div className={clsx("col col--4")}>
       <div className="text--center">
@@ -49,13 +34,13 @@ function Feature({ Svg, title, description }) {
   );
 }
 
-export default function HomepageFeatures() {
+export default function HomepageSimulators() {
   return (
     <section className={styles.features}>
       <div className="container">
         <div className="row">
-          {FeatureList.map((props, idx) => (
-            <Feature key={idx} {...props} />
+          {SimulatorList.map((props, idx) => (
+            <Simulator key={idx} {...props} />
           ))}
         </div>
       </div>

@@ -7,6 +7,8 @@ import { useColorMode } from "@docusaurus/theme-common";
 
 import Heading from "@theme/Heading";
 import styles from "./index.module.css";
+import HomepageSimulators from "../components/HomepageSimulators";
+import HomepageEvents from "../components/HomepageEvents";
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
@@ -52,6 +54,8 @@ export default function Home() {
       <HomepageHeader />
       <main>
         <HomepageFeatures />
+        <HomepageSimulators />
+        <HomepageEvents />
       </main>
     </Layout>
   );
