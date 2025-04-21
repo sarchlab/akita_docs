@@ -296,7 +296,7 @@ export default function HomepageSimulators() {
     <section className="section">
       <div className="sectionContent">
         <h2 className="sectionTitle">Publications</h2>
-        <div className={styles.row}>
+        <div className="row">
           <div className={styles.col}>
             <div className={styles.paperCount}>#{simulatorPapers.length}</div>
             <h3 className="subsectionTitle">

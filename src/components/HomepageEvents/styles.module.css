@@ -1,34 +1,4 @@
-.eventSection {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 4rem 12rem;
-  background-color: var(--ifm-color-background);
-  min-height: 25vh;
-}
-
-.eventContainer {
-  width: 100%;
-  max-width: 1200px;
-  min-width: 800px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  flex-grow: 1;
-  margin-left: 2rem; /* Added for better spacing from the left edge */
-}
-
-.sectionTitle {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: var(--ifm-color-primary);
-}
-
 .eventList {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
   list-style: none;
+  padding-left: 0;
 }

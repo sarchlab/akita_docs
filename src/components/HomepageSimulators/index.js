@@ -6,17 +6,30 @@ const SimulatorList = [
   {
     title: "MGPUSim",
     Svg: require("@site/static/img/undraw_docusaurus_mountain.svg").default,
-    description: <>A GPU simulator</>,
+    description: (
+      <>
+        MGPUSim is a cycle-accurate GPU simulator that models OpenCL workloads
+        running on AMD GCN3 GPU architectures with high fidelity.
+      </>
+    ),
   },
   {
     title: "TrioSim",
     Svg: require("@site/static/img/undraw_docusaurus_tree.svg").default,
-    description: <>Trace-driven simulator for DNN workload modeling.</>,
+    description: (
+      <>
+        TrioSim specializes in trace-driven simulation of deep neural network
+        workloads, with particular emphasis on large-scale distributed training
+        scenarios.
+      </>
+    ),
   },
   {
     title: "Zeonica",
     Svg: require("@site/static/img/undraw_docusaurus_react.svg").default,
-    description: <>Zeonica is a simulator for data-flow architectures.</>,
+    description: (
+      <>Zeonica provides simulation capabilities for data-flow architectures.</>
+    ),
   },
 ];
 
