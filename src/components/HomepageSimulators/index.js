@@ -37,28 +37,28 @@ const SimulatorList = [
   },
 ];
 
-function Simulator({ Svg, Svg_dark, title, description }) {
+function SimulatorComponent({ Svg, Svg_dark, title, description }) {
   const { colorMode } = useColorMode();
+  const isDarkTheme = colorMode === "dark";
+  const IconComponent = isDarkTheme && Svg_dark ? Svg_dark : Svg;
 
   return (
-    <BrowserOnly>
-      {() => {
-        const isDarkTheme =
-          colorMode === "dark" ||
-          document.documentElement.getAttribute("data-theme") === "dark";
-        const IconComponent = isDarkTheme && Svg_dark ? Svg_dark : Svg;
-        return (
-          <div className={clsx("col col--4")}>
-            <div className="text--center">
-              <IconComponent className={styles.featureSvg} role="img" />
-            </div>
-            <div className="text--center padding-horiz--md">
-              <Heading as="h3">{title}</Heading>
-              <p>{description}</p>
-            </div>
-          </div>
-        );
-      }}
+    <div className={clsx("col col--4")}>
+      <div className="text--center">
+        <IconComponent className={styles.featureSvg} role="img" />
+      </div>
+      <div className="text--center padding-horiz--md">
+        <Heading as="h3">{title}</Heading>
+        <p>{description}</p>
+      </div>
+    </div>
+  );
+}
+
+function Simulator(props) {
+  return (
+    <BrowserOnly fallback={<div className={clsx("col col--4")}></div>}>
+      {() => <SimulatorComponent {...props} />}
     </BrowserOnly>
   );
 }
