@@ -293,20 +293,20 @@ function PaperList({ papers }) {
 
 export default function HomepageSimulators() {
   return (
-    <section className={styles.eventSection}>
-      <div className={styles.eventContainer}>
-        <h2 className={styles.sectionTitle}>Publications</h2>
+    <section className="section">
+      <div className="sectionContent">
+        <h2 className="sectionTitle">Publications</h2>
         <div className={styles.row}>
           <div className={styles.col}>
             <div className={styles.paperCount}>#{simulatorPapers.length}</div>
-            <h3 className={styles.subsectionTitle}>
+            <h3 className="subsectionTitle">
               Papers that Design/Improve Simulators
             </h3>
             <PaperList papers={simulatorPapers} />
           </div>
           <div className={styles.col}>
             <div className={styles.paperCount}>#{designPapers.length}</div>
-            <h3 className={styles.subsectionTitle}>
+            <h3 className="subsectionTitle">
               Papers that use Akita Simulators
             </h3>
             <PaperList papers={designPapers} />

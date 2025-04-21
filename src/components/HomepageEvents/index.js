@@ -13,9 +13,9 @@ const EventList = [
 
 export default function HomepageSimulators() {
   return (
-    <section className={styles.eventSection}>
-      <div className={styles.eventContainer}>
-        <h2 className={styles.sectionTitle}>Community Events</h2>
+    <section className="section sectionWhite">
+      <div className="sectionContent">
+        <h2 className="sectionTitle">Community Events</h2>
         <div className="row">
           <div>
             <ul className={styles.eventList}>

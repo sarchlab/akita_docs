@@ -36,8 +36,8 @@ function Simulator({ Svg, title, description }) {
 
 export default function HomepageSimulators() {
   return (
-    <section className={styles.features}>
-      <div className="container">
+    <section className="section">
+      <div className="sectionContent">
         <div className="row">
           {SimulatorList.map((props, idx) => (
             <Simulator key={idx} {...props} />
