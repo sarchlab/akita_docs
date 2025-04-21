@@ -116,7 +116,6 @@ const config = {
         style: "dark",
         links: [],
         copyright: `Copyright © ${new Date().getFullYear()} <a href="https://sarchlab.org">SarchLab</a>, Built with Docusaurus.`,
-        className: "footer",
       },
       prism: {
         theme: prismThemes.github,
