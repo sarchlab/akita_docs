@@ -38,7 +38,11 @@ const SimulatorList = [
 
 function Simulator({ Svg, Svg_dark, title, description }) {
   const { colorMode } = useColorMode();
-  const IconComponent = colorMode === "dark" && Svg_dark ? Svg_dark : Svg;
+
+  const isDarkTheme =
+    colorMode === "dark" ||
+    document.documentElement.getAttribute("data-theme") === "dark";
+  const IconComponent = isDarkTheme && Svg_dark ? Svg_dark : Svg;
 
   return (
     <div className={clsx("col col--4")}>
