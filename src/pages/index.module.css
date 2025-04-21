@@ -7,12 +7,12 @@
   width: 12em;
   height: 12em;
   margin: 0 auto;
-  background-image: url("/img/akita_logo_white.png");
+  background-image: url("/img/akita_logo_darker.png");
   background-size: cover;
 }
 
 html[data-theme="dark"] .heroLogoImg {
-  background-image: url("/img/akita_logo_dark.png");
+  background-image: url("/img/akita_logo_lighter.png");
 }
 
 .row {
@@ -40,6 +40,11 @@ html[data-theme="dark"] .heroLogoImg {
   font-size: 3rem;
   margin-bottom: 1.5rem;
   text-align: left;
+  color: var(--ifm-color-primary-darker);
+}
+
+html[data-theme="dark"] .heroTitle {
+  color: var(--ifm-color-lighter);
 }
 
 .heroSubtitle {
@@ -47,6 +52,11 @@ html[data-theme="dark"] .heroLogoImg {
   margin-bottom: 0.5rem;
   text-align: left;
   line-height: 1.2;
+  color: var(--ifm-color-primary-darker);
+}
+
+html[data-theme="dark"] .heroSubtitle {
+  color: var(--ifm-color-lighter);
 }
 
 @media screen and (max-width: 996px) {

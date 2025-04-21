@@ -16,7 +16,7 @@ function HomepageHeader() {
   const { isDarkTheme } = useColorMode().colorMode == "dark";
 
   return (
-    <header className="section sectionStrong">
+    <header className="section">
       <div className="sectionContent sectionContentCentered">
         <div className={styles.row}>
           <Link

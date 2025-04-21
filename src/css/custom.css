@@ -91,7 +91,7 @@ html[data-theme="dark"] .section {
 }
 
 html[data-theme="dark"] .sectionWhite {
-  background-color: var(--ifm-color-background);
+  background-color: var(--ifm-color-primary-darkest);
 }
 
 html[data-theme="dark"] .sectionTitle,
@@ -107,6 +107,12 @@ html[data-theme="dark"] .showMoreButton:hover {
 .footer {
   padding-top: 4rem;
   min-height: 40vh;
+  color: var(--ifm-color-primary-darkest);
+}
+
+.footer__copyright {
+  font-size: 0.8rem;
+  color: var(--ifm-color-primary-lighter);
 }
 
 @media screen and (max-width: 996px) {
