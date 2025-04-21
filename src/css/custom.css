@@ -104,6 +104,11 @@ html[data-theme="dark"] .showMoreButton:hover {
   color: var(--ifm-color-prime-light);
 }
 
+.footer {
+  padding-top: 4rem;
+  min-height: 40vh;
+}
+
 @media screen and (max-width: 996px) {
   .section {
     padding: 4rem 2rem;
