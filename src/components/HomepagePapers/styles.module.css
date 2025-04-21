@@ -37,12 +37,3 @@
 .showMoreButton:hover {
   color: var(--ifm-color-primary-dark);
 }
-
-/* html[data-theme="dark"] .paperTitle {
-  color: var(--ifm-color-prime-lighter);
-} */
-
-/* html[data-theme="dark"] .paperList,
-html[data-theme="dark"] .paperCount {
-  color: var(--ifm-color-primary-lighter);
-} */

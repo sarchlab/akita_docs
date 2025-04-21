@@ -1,11 +1,13 @@
 import clsx from "clsx";
 import Heading from "@theme/Heading";
+import { useColorMode } from "@docusaurus/theme-common";
 import styles from "./styles.module.css";
 
 const SimulatorList = [
   {
     title: "MGPUSim",
-    Svg: require("@site/static/img/undraw_docusaurus_mountain.svg").default,
+    Svg: require("@site/static/img/mgpusim_darker.svg").default,
+    Svg_dark: require("@site/static/img/mgpusim_lighter.svg").default,
     description: (
       <>
         MGPUSim is a cycle-accurate GPU simulator that models OpenCL workloads
@@ -15,7 +17,8 @@ const SimulatorList = [
   },
   {
     title: "TrioSim",
-    Svg: require("@site/static/img/undraw_docusaurus_tree.svg").default,
+    Svg: require("@site/static/img/triosim_darker.svg").default,
+    Svg_dark: require("@site/static/img/triosim_lighter.svg").default,
     description: (
       <>
         TrioSim is a trace-driven simulator of DNN workloads, especially on
@@ -25,18 +28,22 @@ const SimulatorList = [
   },
   {
     title: "Zeonica",
-    Svg: require("@site/static/img/undraw_docusaurus_react.svg").default,
+    Svg: require("@site/static/img/zeonica_darker.svg").default,
+    Svg_dark: require("@site/static/img/zeonica_lighter.svg").default,
     description: (
       <>Zeonica provides simulation capabilities for data-flow architectures.</>
     ),
   },
 ];
 
-function Simulator({ Svg, title, description }) {
+function Simulator({ Svg, Svg_dark, title, description }) {
+  const { colorMode } = useColorMode();
+  const IconComponent = colorMode === "dark" && Svg_dark ? Svg_dark : Svg;
+
   return (
     <div className={clsx("col col--4")}>
       <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
+        <IconComponent className={styles.featureSvg} role="img" />
       </div>
       <div className="text--center padding-horiz--md">
         <Heading as="h3">{title}</Heading>
