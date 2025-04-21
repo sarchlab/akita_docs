@@ -50,6 +50,9 @@ export default function HomepageSimulators() {
   return (
     <section className="section">
       <div className="sectionContent">
+        <div className={styles.centered + " sectionTitle"}>
+          Akita Simulators
+        </div>
         <div className="row">
           {SimulatorList.map((props, idx) => (
             <Simulator key={idx} {...props} />

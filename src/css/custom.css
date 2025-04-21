@@ -107,7 +107,7 @@ html[data-theme="dark"] .showMoreButton:hover {
 @media screen and (max-width: 996px) {
   .section {
     padding: 4rem 2rem;
-    min-height: 20vh;
+    /* min-height: 20vh; */
   }
 
   .sectionContent {

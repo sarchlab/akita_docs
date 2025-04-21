@@ -29,7 +29,11 @@ html[data-theme="dark"] .heroLogoImg {
 }
 
 .heroContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   max-width: 600px;
+  min-width: 300px;
 }
 
 .heroTitle {
@@ -62,6 +66,12 @@ html[data-theme="dark"] .heroLogoImg {
 
   .heroSubtitle {
     text-align: center;
+  }
+
+  .row {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 }
 
