@@ -39,7 +39,12 @@
   min-height: 50vh;
 }
 
-.sectionWhite {
+.section.sectionStrong {
+  background-color: var(--ifm-color-primary);
+  color: var(--ifm-color-white);
+}
+
+.section.sectionWhite {
   background-color: var(--ifm-color-background);
 }
 
@@ -51,6 +56,10 @@
   justify-content: center;
   flex-grow: 1;
   margin: 2rem 0;
+}
+
+.sectionContentCentered {
+  align-items: center;
 }
 
 .sectionTitle {

@@ -16,30 +16,28 @@ function HomepageHeader() {
   const { isDarkTheme } = useColorMode().colorMode == "dark";
 
   return (
-    <header className={clsx("hero hero--primary", styles.heroBanner)}>
-      <Link
-        className={clsx("heroLogo", styles.heroLogo)}
-        to={siteConfig.customFields.akitalink}
-        target="_blank"
-      >
-        <img
-          src={
-            isDarkTheme
-              ? "/img/akita_logo_dark.png"
-              : "/img/akita_logo_white.png"
-          }
-          alt="Akita Logo"
-          className={clsx("heroLogoImg", styles.heroLogoImg)}
-        />
-      </Link>
+    <header className="section sectionStrong">
+      <div className="sectionContent sectionContentCentered">
+        <div className={styles.row}>
+          <Link
+            className={clsx("heroLogo", styles.heroLogo)}
+            to={siteConfig.customFields.akitalink}
+            target="_blank"
+          >
+            <div className={styles.heroLogoImg} />
+          </Link>
 
-      <div className={clsx("heroContent", styles.heroContent)}>
-        <Heading as="h1" className={clsx("heroTitle", styles.heroTitle)}>
-          {siteConfig.title}
-        </Heading>
-        <p className={clsx("heroSubtitle", styles.heroSubtitle)}>
-          {siteConfig.tagline}
-        </p>
+          <div className={styles.heroContent}>
+            <Heading as="h1" className={clsx("heroTitle", styles.heroTitle)}>
+              {siteConfig.title}
+            </Heading>
+            <p className={clsx("heroSubtitle", styles.heroSubtitle)}>
+              Computer architecture simulation with
+              <br />
+              good user and developer experiences.
+            </p>
+          </div>
+        </div>
       </div>
     </header>
   );

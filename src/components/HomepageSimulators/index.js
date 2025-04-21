@@ -9,7 +9,7 @@ const SimulatorList = [
     description: (
       <>
         MGPUSim is a cycle-accurate GPU simulator that models OpenCL workloads
-        running on AMD GCN3 GPU architectures with high fidelity.
+        running on AMD GCN3 GPU architectures.
       </>
     ),
   },
@@ -18,9 +18,8 @@ const SimulatorList = [
     Svg: require("@site/static/img/undraw_docusaurus_tree.svg").default,
     description: (
       <>
-        TrioSim specializes in trace-driven simulation of deep neural network
-        workloads, with particular emphasis on large-scale distributed training
-        scenarios.
+        TrioSim is a trace-driven simulator of DNN workloads, especially on
+        large-scale distributed training scenarios.
       </>
     ),
   },

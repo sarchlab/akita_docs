@@ -4,10 +4,18 @@
  */
 
 .heroLogoImg {
-  max-width: 12rem;
+  width: 12em;
+  height: 12em;
+  margin: 0 auto;
+  background-image: url("/img/akita_logo_white.png");
+  background-size: cover;
 }
 
-.heroBanner {
+html[data-theme="dark"] .heroLogoImg {
+  background-image: url("/img/akita_logo_dark.png");
+}
+
+.row {
   width: 100%;
   padding: 12rem 0;
   text-align: center;
@@ -17,13 +25,10 @@
   flex-direction: row;
   justify-content: center;
   align-items: end;
-  gap: 4rem;
+  gap: 6rem;
 }
 
 .heroContent {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
   max-width: 600px;
 }
 
