@@ -1,7 +1,7 @@
 ---
 title: A New Runner in MGPUSim
 description: We have recently fully rewritten the `runner` package, which serves as the configuration file for MGPUSim.
-slug: fist-blog
+slug: a-new-runner-in-mgpusim
 authors:
   - name: Yifan Sun
     title: Assistant Professor
