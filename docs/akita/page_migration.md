@@ -22,7 +22,80 @@ Upon being notified of the completion of the page migration, the driver promptly
 Before processing the page migration, the first problem that needs to be addressed is when to process the page migration. To this end, there are several page migration polices have been proposed by researchers. The on-demand page migration is widely implemented in current GPUs
 
 ## component by component development
-To support page migration, the whole storage system(command processor, cache, and TLB) and driver need to be redsigned. The concrete part will be discussed in the following part.
+Before modifying components, a new __memory control protocol__ needs to be designed to support page migration. The memory control protocol is used to assign page migration commands that aforementioned and get response message in intra-GPU communication(`driver` to `GPU`) and inter-GPU communication(`CP` to `CU`, `Cache`, `TLB`, `RDMA` and `DRAM`)
 
-<!-- ### TLB design -->
+The concrete information of memory control protocol shown below:
 
+ ![Protocol](./figures/Ideal_memory_controller_FSM.svg)
+
+<!-- <img
+  src="./figures/Ideal_memory_controller_FSM.svg"
+  alt="FSM"
+  style={{ width: '60%', maxWidth: '600px' }}
+/> -->
+
+Incompatible signals or states
+
+- If signal’s `Enable=True`, all other fields are ignored. If we need invalid then disable, send 2 signals.
+- If the component’s `Enable=False`, the next signal must have `Enable=True`.
+- If the component’s `Drain=True` or `Flush=True`, the component will not receive new signals.
+- A signal cannot have both Drain and Flush be True. However, a controller may send a flush signal immediately after a drain signal.
+
+A few types of signals are allowed.
+
+- Enable, disable  — only one bit. Immediate response.
+- Pause, continue — only one bit. enable = true Component must be enabled.
+- Flush command = enable, pause, drain, flush. Delayed response.
+- Drain command = enable, pause, drain. Delayed response.
+- Invalid command = enable, pause, drain, invalid. Delayed response.
+
+Invalid content: 
+
+Pause command
+
+pause → disable
+
+enum
+
+| Enable State | Enable | Discard | Drain | Flush | Invalid | Meaning |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0 | 1 | x | x | x | x | Enable the component, continue execution |
+| 1 | 1 | x | x | x | x | Not allowed, panic, cannot enable again |
+| 0 | 0 | x | x | x | x | Not allowed, panic |
+| 1 | 0 | 1 | 1 | x | x | Not allowed, cannot both drain and discard |
+| 1 | 0 | 1 | 0 | x | x | Discard transaction |
+| 1 | 0 | 0 | 1 | x | x | Drain transaction |
+
+# Overall Protocol
+
+The memory control protocol contains the following signals: 
+
+| Signal/State name | Function |
+| --- | --- |
+| Enable[state] | The enable state is the switch of the whole component. The component works only if the enable is `true`. The component cannot receive any control signal or receive/respond to any request from/to outside if the enable is `false`. |
+| Pause[state]  | The pause state controls the component to stop receiving/responding to any request from/to outside. However, the component can still receive and process control signals. |
+| Reset[signal] [Remove] | The reset signal resets all control signals’ states to initial states.  |
+| Drain[state] | The drain state lets the component finish all memory requests that have been received. The request will not be processed if it is in the incoming buffer.  |
+| Invalidate[signal] | The invalidate state stops all behaviors of the component and deletes all memory requests and responds in buffer. |
+| Flush[state] | The flush signal is used to replace old data with new data,  |
+| General Response | When a component finishes one of the process signals, the component will generate a general response message to respond to the control signal.  |
+
+### Overall 
+
+### Driver modification
+
+
+### TLB modification
+The TLB in 
+
+#### TLB shootdown
+
+##### Single-level TLB shootdown
+
+##### Multi-level TLB shootdown
+
+#### TLB flush
+
+##### Single-level TLB flush
+
+##### Multi-level TLB flush
