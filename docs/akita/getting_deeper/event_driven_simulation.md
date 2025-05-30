@@ -39,7 +39,7 @@ func (f Freq) NextTick(now VTimeInSec) VTimeInSec
 
 The relationship between `ThisTick` and `NextTick` functions.
 
-:::`note[What is the drawback of defining time and frequency as floating point numbers.]
+:::note[What is the drawback of defining time and frequency as floating point numbers.]
 A: Since floating point calculation is not precise, some times it is difficult to determine if you are at or slightly before/after a clock cycle. This forces us to use a trick to calculate `NextTick`, using `cycle := math.Floor(math.Round(float64(now)*10*float64(f)) / 10)`. This adds computational burden and is still not fully safe. Without this trick, `NextTick` may return current time, making the whole simulation not moving forward.
 :::
 

@@ -87,6 +87,7 @@ const config = {
             sidebarId: "akitaDocSidebar",
             label: "Akita",
             position: "left",
+            sidebarPath: "./docs/akita/sidebar.js",
           },
           {
             type: "docSidebar",
@@ -94,22 +95,11 @@ const config = {
             label: "MGPUSim",
             position: "left",
           },
-          // {
-          //   type: 'docSidebar',
-          //   sidebarId: 'tutorialSidebar',
-          //   position: 'left',
-          //   label: 'Tutorial',
-          // },
           {
             to: "/blog",
             label: "Blog",
             position: "left",
           },
-          // {
-          //   href: 'https://github.com/sarchlab',
-          //   label: 'GitHub',
-          //   position: 'right',
-          // },
         ],
       },
       footer: {

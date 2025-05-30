@@ -2,13 +2,7 @@
 title: A New Runner in MGPUSim
 description: We have recently fully rewritten the `runner` package, which serves as the configuration file for MGPUSim.
 slug: a-new-runner-in-mgpusim
-authors:
-  - name: Yifan Sun
-    title: Assistant Professor
-    url: https://sarchlab.org/syifan
-    image_url: https://sarchlab.org/yifan_profile.png
-    socials:
-      github: syifan
+authors: yifansun
 tags: [mgpusim, runner]
 hide_table_of_contents: false
 ---
