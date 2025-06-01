@@ -81,21 +81,11 @@ The memory control protocol contains the following signals:
 | General Response | When a component finishes one of the process signals, the component will generate a general response message to respond to the control signal.  |
 
 ### Overall 
+To implement page migration, all aforementioned components need to be modified. The page migration procedure that we discussed earlier can be roughly divided into three stages: preparing page migration, processing page migration, finalizing page migration. In following sections, we will describe in detail each component's behaviors for those three stages.
 
 ### Driver modification
 
 
 ### TLB modification
-The TLB in 
-
-#### TLB shootdown
-
-##### Single-level TLB shootdown
-
-##### Multi-level TLB shootdown
-
-#### TLB flush
-
-##### Single-level TLB flush
-
-##### Multi-level TLB flush
+<!-- Only CU needs to execute draining operation, when CU stops continuously execute new tasks, all components will be drained. This opinion needs to be discussed in the next meeting  -->
+The TLB is used to cache and translate virtual addresses to physical addresses before GPU performing memory access. During the preparing page migration stage, command processor suspends to assign new tasks to compute units. The compute units will send all address translation requests to L1 TLBs and wait for responses of such address translation requests. When all address translation requests of the current task have been completed, TLBs will be set as pause state and stop to handle new address translation requests until the page migration completes. There is no any operations during the processing page migration stage. However, in the finalizing page migration stage. Since migrated pages have new physical addresses, CUs accesses stale TLB entries can cause illegal page access issues and return wrong data. To avoid this problem, driver needs to broadcast new physical addresses of migrated pages to all GPUs(TLB shootdown) before finalizing page migration. 
