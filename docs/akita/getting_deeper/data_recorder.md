@@ -44,6 +44,10 @@ dataRecorder.CreateTable("tasks", Task{})
 
 All fields from the struct will be automatically stored in the database as columns.
 
+:::warning
+All the fields in the struct must be exported. The `datarecording` package will use reflection to create the table schema. The struct itself can be unexported. Also, the struct must be a plain struct. No list, maps, or other complex types are allowed.
+:::
+
 ### Improving Query Performance with Struct Field Tags (Optional)
 
 For large datasets, you can improve query performance by adding indexes to specific fields using struct tags. These tags are completely optional but can significantly speed up data retrieval.
