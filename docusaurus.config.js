@@ -112,6 +112,13 @@ const config = {
         darkTheme: prismThemes.dracula,
       },
     }),
+
+  scripts: [
+    {
+      src: "https://www.clarity.ms/tag/rufzuf8gy6",
+      async: true,
+    },
+  ],
 };
 
 export default config;
