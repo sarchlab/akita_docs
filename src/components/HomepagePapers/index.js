@@ -5,14 +5,6 @@ import styles from "./styles.module.css";
 const simulatorPapers = [
   {
     title:
-      "FS2: A Fast, Scalable and Flexible Switching System for Emerging Interconnects",
-    authors:
-      "Heetaek Jeong, Kanghyun Choi, Hamin Jang, Donup-Kwon, Eunjin-Baek, Pyeongsu-Park, and Jangwoo Kim",
-    link: "https://ieeexplore.ieee.org/abstract/document/11018277?casa_token=JnKcDkmWB8cAAAAA:BeuMoYW8uJcKCgVOuHn9v4tu2aU2m4G1q-jX1Ego0ZQudPBSj3sh4N1074QozyDgSOO2-OJ7Hgg",
-    year: 2025,
-  },
-  {
-    title:
       "Looking into the Black Box: Monitoring Computer Architecture Simulations in Real-Time with AkitaRTM",
     authors: "Ali Mosallaei; Katherine E. Isaacs; Yifan Sun",
     link: "https://ieeexplore.ieee.org/abstract/document/10764426",
@@ -62,6 +54,14 @@ const simulatorPapers = [
 ];
 
 const designPapers = [
+  {
+    title:
+      "FS2: A Fast, Scalable and Flexible Switching System for Emerging Interconnects",
+    authors:
+      "Heetaek Jeong, Kanghyun Choi, Hamin Jang, Donup-Kwon, Eunjin-Baek, Pyeongsu-Park, and Jangwoo Kim",
+    link: "https://ieeexplore.ieee.org/abstract/document/11018277?casa_token=JnKcDkmWB8cAAAAA:BeuMoYW8uJcKCgVOuHn9v4tu2aU2m4G1q-jX1Ego0ZQudPBSj3sh4N1074QozyDgSOO2-OJ7Hgg",
+    year: 2025,
+  },
   {
     title:
       "ACTA: Automatic Configuration of the Tensor Memory Accelerator for High-End GPUs",
