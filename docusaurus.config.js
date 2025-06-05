@@ -115,8 +115,8 @@ const config = {
 
   scripts: [
     {
-      src: "https://www.clarity.ms/tag/rufzuf8gy6",
-      async: true,
+      src: "/script.js",
+      async: false,
     },
   ],
 };
