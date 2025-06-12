@@ -2,9 +2,10 @@
 sidebar_position: 6
 ---
 
-# Page migration
+# Page Migration
 
-## GPU-GPU page migration
+## GPU-GPU Page Migration
+
 In a NUMA multi-GPU system, after initially allocating data in GPUs, some data is very frequently accessed by remote GPUs. The frequently remote data accessing behavior will introduce non-negligible communication overhead and occupancy of Bandwidth resources. To address this problem, GPU-GPU page migration occurs periodically to move data to an appropriate GPU. The GPU-GPU page migration procedure can be divided into three steps: (1) preparing the page migration, (2) processing the page migration, and (3) finishing the page migration.
 
 Assuming the data that the target GPU needs is located in the source GPU. After TLB returns the physical address, the reorder buffer(RoB) forwards this physical address to the L1 Cache to find the corresponding data. Once the L1 Cache cannot serve this data access request, the data access request will be cached in the L1 Cache's MSHR temporarily. By parsing the physical address of the data access request, if the physical address is out of the range of the local DRAM address, a far page fault occurs, and Remote Direct Memory Access(RDMA) issues this data access request to source GPU. 
@@ -21,7 +22,8 @@ Upon being notified of the completion of the page migration, the driver promptly
 
 Before processing the page migration, the first problem that needs to be addressed is when to process the page migration. To this end, there are several page migration polices have been proposed by researchers. The on-demand page migration is widely implemented in current GPUs
 
-## component by component development
+## Component by Component Development
+
 Before modifying components, a new __memory control protocol__ needs to be designed to support page migration. The memory control protocol is used to assign page migration commands that aforementioned and get response message in intra-GPU communication(`driver` to `GPU`) and inter-GPU communication(`CP` to `CU`, `Cache`, `TLB`, `RDMA` and `DRAM`)
 
 The concrete information of memory control protocol shown below:
@@ -83,9 +85,9 @@ The memory control protocol contains the following signals:
 ### Overall 
 To implement page migration, all aforementioned components need to be modified. The page migration procedure that we discussed earlier can be roughly divided into three stages: preparing page migration, processing page migration, finalizing page migration. In following sections, we will describe in detail each component's behaviors for those three stages.
 
-### Driver modification
+### Driver Modification
 
 
-### TLB modification
+### TLB Modification
 <!-- Only CU needs to execute draining operation, when CU stops continuously execute new tasks, all components will be drained. This opinion needs to be discussed in the next meeting  -->
 The TLB is used to cache and translate virtual addresses to physical addresses before GPU performing memory access. During the preparing page migration stage, command processor suspends assignment of new tasks to compute units. The compute units send all address translation requests to L1 TLBs and wait for responses of such address translation requests. When all address translation requests of the current task have been completed, TLBs will be set as pause state and stop to handle new address translation requests until the page migration completes. There is no any operations during the processing page migration stage. However, in the finalizing page migration stage. Since migrated pages have new physical addresses, CUs accesses stale TLB entries can cause illegal page access issues and return wrong data. To avoid this problem, driver needs to broadcast new physical addresses of migrated pages to all GPUs(TLB shootdown) before finalizing page migration. 
