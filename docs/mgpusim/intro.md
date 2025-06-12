@@ -27,3 +27,11 @@ This command would download all the dependencies and compile the simulator and t
 ./fir            # For functional emulation
 ./fir -timing    # For detailed simulation
 ```
+
+## What Are in the `samples` Directory?
+
+Samples directory mainly contains a list of ready-made programs that can run a set of benchmarks in MGPUSim. For example, `aes`, `atax`, etc. are all main programs that can run a benchmark, suggested by the name of the directory, in MGPUSim. 
+
+A few special folders that present special ways of runner benchmarks. For example, `concurrent_kernel` and `concurrent_workload` allows users to run multiple benchmarks in one hardware platform in parallel, testing multi-tenant execution. The difference between these two directory is how the workloads are executed, `concurrent_kernel` allows multiple kernels to concurrently execute in one GPU, while `concurrent_workload` places workloads in different GPUs.
+
+A special case is the `runner` directory. The `runner` directory contains the configuration files, which are still Go code, that configures the hardware platform under simulation. 
