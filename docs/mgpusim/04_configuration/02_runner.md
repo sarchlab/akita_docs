@@ -71,7 +71,7 @@ In MGPUSim, we use "With" functions to set the properties. For example, here, `W
 
 There is a convention in MGPUSim that the builder's "With" functions can be chained, like the example above, as each "With" function returns the builder. Just be careful, if you need to change a configuration outside the chain, make sure you assigned the builder back to the variable. Otherwise, the builder will not be updated. Finally, we call the `Build` function to build the domain. 
 
-For the timing platform, the logic is similar (see the code below). The only difference is that we setup sampled engine at the beginning and we setup the reporter and visualization tracer at the end. We will talk about the reporter and visualization tracer in the next section. 
+For the timing platform, the logic is similar (see the code below). The only difference is that we setup sampled engine at the beginning and we setup the reporter and visualization tracer at the end. We will talk about the reporter and visualization tracer later. 
 
 ```go
 func (r *Runner) buildTimingPlatform() {
@@ -151,3 +151,34 @@ func (r *Runner) Run() {
 ```
 
 After trimming the code, we can simply reduce the code into 4 steps before cleaning up the simulation. These steps include (1) launching the GPU driver, (2) executing the benchmark, (3) verifying the result, and (4) reporting the performance.
+
+## Main Program
+
+With the runner defined, the main program can be written in a few lines that parses the command-line arguments, initializes the runner, adds the benchmark, and runs the simulation. For example, the main program for the FIR benchmark is as follows:
+
+```go
+package main
+
+import (
+	"flag"
+
+	"github.com/sarchlab/mgpusim/v4/amd/benchmarks/heteromark/fir"
+	"github.com/sarchlab/mgpusim/v4/amd/samples/runner"
+)
+
+var numData = flag.Int("length", 4096, "The number of samples to filter.")
+
+func main() {
+	flag.Parse()
+
+	runner := new(runner.Runner).Init()
+
+	benchmark := fir.NewBenchmark(runner.Driver())
+	benchmark.Length = *numData
+
+	runner.AddBenchmark(benchmark)
+
+	runner.Run()
+}
+```
+
