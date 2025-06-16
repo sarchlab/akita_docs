@@ -28,7 +28,7 @@ Akita includes a few key elements that make it a powerful tool for building comp
 
 Akita has been used in building several simulators, including: 
 
-- [MGPUSim](/docs/mgpusim/intro)
+- [MGPUSim](/docs/mgpusim/01_getting_started.md)
 - [Yori](https://michaeltshen.github.io/Files/Yori.pdf)
 - [TrioSim](https://github.com/sarchlab/triosim)
 
