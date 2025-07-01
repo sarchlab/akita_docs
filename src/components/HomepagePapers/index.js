@@ -5,6 +5,14 @@ import styles from "./styles.module.css";
 const simulatorPapers = [
   {
     title:
+      "TrioSim: A Lightweight Simulator for Large-Scale DNN Workloads on Multi-GPU Systems",
+    authors:
+      "Ying Li, Yuhui Bao, Gongyu Wang, Xinxin Mei, Pranav Vaid, Anandaroop Ghosh, Adwait Jog, Darius Bunandar, Ajay Joshi, Yifan Sun",
+    link: "https://dl.acm.org/doi/pdf/10.1145/3695053.3731082",
+    year: 2025,
+  },
+  {
+    title:
       "Looking into the Black Box: Monitoring Computer Architecture Simulations in Real-Time with AkitaRTM",
     authors: "Ali Mosallaei; Katherine E. Isaacs; Yifan Sun",
     link: "https://ieeexplore.ieee.org/abstract/document/10764426",
@@ -54,6 +62,34 @@ const simulatorPapers = [
 ];
 
 const designPapers = [
+  {
+    title: "The Sparsity-Aware LazyGPU Architecture",
+    authors: "Changxi Liu, Miao Yu, Yifan Sun, Trevor E. Carlson",
+    year: 2025,
+    link: "https://dl.acm.org/doi/pdf/10.1145/3695053.3731009",
+  },
+  {
+    title:
+      "Unified Memory Protection with Multi-granular MAC and Integrity Tree for Heterogeneous Processors",
+    authors: "Sunho Lee, Seonjin Na, Jeongwon Choi, Jinwon Pyo, Jaehyuk Huh",
+    year: 2025,
+    link: "https://dl.acm.org/doi/pdf/10.1145/3695053.3731066",
+  },
+  {
+    title:
+      "NetCrafter: Tailoring Network Traffic for Non-Uniform Bandwidth Multi-GPU Systems",
+    authors:
+      "Amel Fatima, Yang Yang, Yifan Sun, Rachata Ausavarungnirun, Adwait Jog",
+    year: 2025,
+    link: "https://dl.acm.org/doi/pdf/10.1145/3695053.3731040",
+  },
+  {
+    title:
+      "Heliostat: Harnessing Ray Tracing Accelerators for Page Table Walks",
+    authors: "Yuan Feng, Yuke Li, Jiwon Lee, Won Woo Ro, Hyeran Jeon",
+    link: "https://dl.acm.org/doi/pdf/10.1145/3695053.3731011",
+    year: 2025,
+  },
   {
     title:
       "FS2: A Fast, Scalable and Flexible Switching System for Emerging Interconnects",
