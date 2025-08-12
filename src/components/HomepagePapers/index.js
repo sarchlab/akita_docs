@@ -5,6 +5,13 @@ import styles from "./styles.module.css";
 const simulatorPapers = [
   {
     title:
+      "MGPU-FI: A Fault Injection Framework for Reliability Analysis of Multi-GPU Systems",
+    authors: "Leiyu Zhang, Jingweijia Tan, Xiaohui Wei",
+    link: "https://ieeexplore.ieee.org/abstract/document/10764426",
+    year: 2025,
+  },
+  {
+    title:
       "TrioSim: A Lightweight Simulator for Large-Scale DNN Workloads on Multi-GPU Systems",
     authors:
       "Ying Li, Yuhui Bao, Gongyu Wang, Xinxin Mei, Pranav Vaid, Anandaroop Ghosh, Adwait Jog, Darius Bunandar, Ajay Joshi, Yifan Sun",
@@ -62,6 +69,27 @@ const simulatorPapers = [
 ];
 
 const designPapers = [
+  {
+    title:
+      "Performance investigation on disaggregated artificial intelligence data centers beyond rack scale with optical switching",
+    authors:
+      "Fulong Yan, Hanting Huang, Yanxian Bi, Peizhao Li, Zhiwen Xue, Chao Li, Zichen Liu, Zhixue He, Zihao Li, QiDong Cao",
+    link: "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=11079779",
+    year: 2025,
+  },
+  {
+    title:
+      "Performance investigation on disaggregated artificial intelligence data centers beyond rack scale with optical switching",
+    authors:
+      "Yifan Sun, Yuhui Bao, Ying Li, Ying Wang, Yibo Du, Ying Wang, Mengdi Wang, Xiaowei Li, Yinhe Han",
+  },
+  {
+    title:
+      "Chiplever: A Hardware-Software Co-design Framework Towards Extension of Chiplet System for Fully Homomorphic Encryption",
+    authors: "Yibo Du, Ying Wang, Mengdi Wang, Xiaowei Li, Yinhe Han",
+    link: "https://ieeexplore.ieee.org/abstract/document/11060913",
+    year: 2025,
+  },
   {
     title: "The Sparsity-Aware LazyGPU Architecture",
     authors: "Changxi Liu, Miao Yu, Yifan Sun, Trevor E. Carlson",
