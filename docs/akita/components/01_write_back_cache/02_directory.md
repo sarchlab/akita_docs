@@ -2,7 +2,7 @@
 
 The directory stage is probably the most complex subcomponent in the writeback cache. It is responsible for looking up tags/metadata, consulting MSHRs, and choosing the next action. Additionally, we model a timing delay for directory lookup. 
 
-**Directory Lookup Latency:**
+## Directory Lookup Latency Modeling
 
 We first use a simple pipeline to model the directory lookup latency. 
 
@@ -40,7 +40,7 @@ madeProgress = ds.pipeline.Tick() || madeProgress
 
 After the `acceptNewTransaction` method, the directory stage ticks the internal pipeline, creating a latency for every transaction. The transactions that have passed the pipeline are temporarily stored in a internal buffer (`ds.buf`) to be processed in the next tick.
 
-**Transaction Processing:**
+## Transaction Processing
 
 After the delay, the directory stage will process the transaction in `processTransaction` method. 
 
@@ -89,7 +89,7 @@ In total, we consider 7 different cases.
 - Write miss, full line
 - Write miss, partial line
 
-**Read Processing:**
+## Read
 
 Let's first take a look at the `doRead` method. 
 
@@ -115,7 +115,7 @@ func (ds *directoryStage) doRead(trans *transaction) bool {
 
 The `doRead` method dispatches the transaction to different methods based on the result of the directory lookup. We first check the MSHR to see if the data is currently being fetched. We check MSHR before directory lookup. This is a simple solution to avoid errors. If the cache line is not in the MSHR, we look up in the directory. If no block is found, we handle the read miss. Otherwise, we handle the read hit. 
 
-**Read MSHR Hit:**
+### Read MSHR Hit
 
 ```go
 func (ds *directoryStage) handleReadMSHRHit(
@@ -139,7 +139,7 @@ func (ds *directoryStage) handleReadMSHRHit(
 
 MSHR hit is the simplest case. The transaction is simply added to the MSHR entry and the subsequent action is handled by the MSHR stage. The `AddTaskStep` call is used to tag the transaction with `read-mshr-hit` for data collection. We will skip the tracing part in the rest of the document. 
 
-**Read Hit:**
+### Read Hit
 
 ```go
 func (ds *directoryStage) handleReadHit(
@@ -208,7 +208,7 @@ bankBuf.Push(trans)
 
 Finally, we move the transaction from the directory stage internal buffer (after the pipeline) to the bank buffer. 
 
-**Read Miss:**
+### Read Miss
  
 When the directory lookup fails, we handle the read miss. The directory stage decides whether to evict a victim (if it is valid and dirty) or to fetch directly into a victim block. It also sets up MSHR state to aggregate any concurrent requests for the same cache line.
 
@@ -348,3 +348,13 @@ End-to-end, a read miss proceeds as:
 - Write buffer writes back dirty data and fetches the missed line (from local eviction data if available, otherwise from the lower memory).
 - Bank installs fetched data into the array and wakes the MSHR.
 - MSHR returns `DataReadyRsp` for the read and drains any coalesced writes.
+
+## Write
+
+### Write MSHR Hit
+
+### Write Hit
+
+### Write Miss, Full Line
+
+### Write Miss, Partial Line
