@@ -141,6 +141,7 @@ MSHR hit is the simplest case. The transaction is simply added to the MSHR entry
 
 ### Read Hit
 
+Read hit processing is also straightforward (see the code list below).
 ```go
 func (ds *directoryStage) handleReadHit(
 	trans *transaction,
@@ -155,8 +156,7 @@ func (ds *directoryStage) handleReadHit(
 
 ```
 
-Read hit processing is also straightforward as the action will be delegated to the bank stage. We need to check if the block is locked (being evicted or being written) before sending the transaction to the bank. 
-
+The main action is delegated to the bank stage. Still, before any action can be taken, we need to check if the block is locked (being evicted or being written) before sending the transaction to the bank. 
 
 ```go
 
@@ -209,93 +209,127 @@ bankBuf.Push(trans)
 Finally, we move the transaction from the directory stage internal buffer (after the pipeline) to the bank buffer. 
 
 ### Read Miss
+
+The read miss processing is a bit more complex. 
  
-When the directory lookup fails, we handle the read miss. The directory stage decides whether to evict a victim (if it is valid and dirty) or to fetch directly into a victim block. It also sets up MSHR state to aggregate any concurrent requests for the same cache line.
 
 ```go
 func (ds *directoryStage) handleReadMiss(trans *transaction) bool {
-	req := trans.read
-	cacheLineID, _ := getCacheLineID(req.Address, ds.cache.log2BlockSize)
+    req := trans.read
+    cacheLineID, _ := getCacheLineID(req.Address, ds.cache.log2BlockSize)
 
-	if ds.cache.mshr.IsFull() {
-		return false
-	}
+    // If we cannot track another miss, stall.
+    if ds.cache.mshr.IsFull() {
+        return false
+    }
 
-	victim := ds.cache.directory.FindVictim(cacheLineID)
-	if victim.IsLocked || victim.ReadCount > 0 {
-		return false
-	}
+    // Identify a replace target and make sure it is available.
+    victim := ds.cache.directory.FindVictim(cacheLineID)
+    if victim.IsLocked || victim.ReadCount > 0 {
+        return false
+    }
 
-	if ds.needEviction(victim) {
-		ok := ds.evict(trans, victim)
-		if ok {
-			tracing.AddTaskStep(
-				tracing.MsgIDAtReceiver(trans.read, ds.cache),
-				ds.cache,
-				"read-miss",
-			)
-		}
-		return ok
-	}
+    // Dirty victims are written back before we can reuse the slot.
+    if ds.needEviction(victim) {
+        ok := ds.evict(trans, victim)
+        if ok {
+            // tracing: "read-miss"
+        }
+        return ok
+    }
 
-	ok := ds.fetch(trans, victim)
-	if ok {
-		tracing.AddTaskStep(
-			tracing.MsgIDAtReceiver(trans.read, ds.cache),
-			ds.cache,
-			"read-miss",
-		)
-	}
-	return ok
+    // Otherwise we can fetch the new line directly.
+    ok := ds.fetch(trans, victim)
+    if ok {
+        // tracing: "read-miss"
+    }
+    return ok
 }
 ```
 
-In summary:
-- The directory checks MSHR capacity, picks a victim, and stalls if the victim is locked or being read.
-- If the victim needs eviction (valid and dirty), it prepares an eviction; otherwise, it fetches the missed line.
-- In either path, it moves the transaction to the bank stage for execution.
+There are a few conditions to check before we can proceed with the read miss. 
 
-Eviction path. The directory preps the transaction and victim metadata and decides whether to fetch after eviction (misses always fetch):
+- If the MSHR is full, we cannot store the transaction to fetch. So we stall. 
+- If the victim, identified by the `FindVictim` method, is locked or being served by outstanding reads, we stall.
+
+If all the conditions are met, we can proceed with the read miss. There are two cases to consider. One is the eviction path and one is the direct fetch path. If the victim is valid and dirty, we need to write it back before we can reuse the slot. Otherwise, we can directly fetch the new line. 
+
+#### Eviction path
+
+When eviction is needed, the directory stage builds a bank command and pre‑allocates the victim for the cache line to be fetched.
+
+Let's read the `evict` method. 
 
 ```go
-func (ds *directoryStage) evict(
+func (ds *directoryStage) evict(trans *transaction, victim *cache.Block) bool {
+    bankNum := bankID(victim, ds.cache.directory.WayAssociativity(), len(ds.cache.dirToBankBuffers))
+    bankBuf := ds.cache.dirToBankBuffers[bankNum]
+    if !bankBuf.CanPush() { return false }
+
+	...
+   
+}
+```
+
+In the first part, we identify the bank that owns the victim block. Note that the victim block must also be the block where the fetched data will be stored. 
+
+
+```go
+func (ds *directoryStage) evict(trans *transaction, victim *cache.Block) bool {
+	...
+
+	var addr uint64; var pid vm.PID
+	if trans.read != nil { addr = trans.read.Address; pid = trans.read.PID }
+	else { addr = trans.write.Address; pid = trans.write.PID }
+	cacheLineID, _ := getCacheLineID(addr, ds.cache.log2BlockSize)
+
+	...
+}
+```
+
+Next, we get the cache line initial address and the PID. Here, we use a if statement because the `evict` method serves both read and write requests. 
+
+```go
+func (ds *directoryStage) evict(trans *transaction, victim *cache.Block) bool {
+	...
+
+	ds.updateTransForEviction(trans, victim, pid, cacheLineID)
+	ds.updateVictimBlockMetaData(victim, cacheLineID, pid)
+
+	...
+}
+```
+
+The following the two function calls to `updateTransForEviction` and `updateVictimBlockMetaData` are the core to the eviction action. 
+
+
+
+The `updateTransForEviction` method is listed below. 
+
+```go
+func (ds *directoryStage) updateTransForEviction(
 	trans *transaction,
 	victim *cache.Block,
-) bool {
-	bankNum := bankID(victim,
-		ds.cache.directory.WayAssociativity(), len(ds.cache.dirToBankBuffers))
-	bankBuf := ds.cache.dirToBankBuffers[bankNum]
-	if !bankBuf.CanPush() {
-		return false
-	}
-
-	// Update trans and victim metadata
-	cacheLineID, _ := getCacheLineID(trans.read.Address, ds.cache.log2BlockSize)
-	ds.updateTransForEviction(trans, victim, trans.read.PID, cacheLineID)
-	ds.updateVictimBlockMetaData(victim, cacheLineID, trans.read.PID)
-
-	ds.buf.Pop()
-	bankBuf.Push(trans)
-	ds.cache.evictingList[trans.victim.Tag] = true
-	return true
-}
-
-func (ds *directoryStage) updateTransForEviction(
-	trans *transaction, victim *cache.Block, pid vm.PID, cacheLineID uint64,
+	pid vm.PID,
+	cacheLineID uint64,
 ) {
-	trans.action = bankEvictAndFetch // default for reads
-	trans.victim = &cache.Block{ PID: victim.PID, Tag: victim.Tag,
-		CacheAddress: victim.CacheAddress, DirtyMask: victim.DirtyMask }
+	trans.action = bankEvictAndFetch
+	trans.victim = &cache.Block{
+		PID:          victim.PID,
+		Tag:          victim.Tag,
+		CacheAddress: victim.CacheAddress,
+		DirtyMask:    victim.DirtyMask,
+	}
 	trans.block = victim
 	trans.evictingPID = trans.victim.PID
 	trans.evictingAddr = trans.victim.Tag
 	trans.evictingDirtyMask = victim.DirtyMask
 
-	if ds.evictionNeedFetch(trans) { // true for reads
-		m := ds.cache.mshr.Add(pid, cacheLineID)
-		m.Block = victim
-		m.Requests = append(m.Requests, trans)
-		trans.mshrEntry = m
+	if ds.evictionNeedFetch(trans) {
+		mshrEntry := ds.cache.mshr.Add(pid, cacheLineID)
+		mshrEntry.Block = victim
+		mshrEntry.Requests = append(mshrEntry.Requests, trans)
+		trans.mshrEntry = mshrEntry
 		trans.fetchPID = pid
 		trans.fetchAddress = cacheLineID
 		trans.action = bankEvictAndFetch
@@ -305,49 +339,117 @@ func (ds *directoryStage) updateTransForEviction(
 }
 ```
 
-Fetch path. If no eviction is needed, the directory allocates an MSHR entry and locks the chosen victim block, then asks the bank to forward a fetch request to the write buffer:
+For most of the case, an eviction also requires a fetch. Consider 2 cases:
+
+- Read miss: We need to fetch the data from the lower memory. 
+- Write miss (partial line write): We also need to fetch the data from the lower memory so that the written data can be merged with the fetched data. 
+
+One exception case is when writing a full cache line. In this case, we directly allocate the block and write the data to the block. Therefore, we do not need to allocate MSHR entry and the bank action can be simply `bankEvictAndWrite`.
+
+
+
+
+
+
+
+
+
+
+
 
 ```go
-func (ds *directoryStage) fetch(
-	trans *transaction,
-	block *cache.Block,
-) bool {
-	cacheLineID, _ := getCacheLineID(trans.read.Address, ds.cache.log2BlockSize)
-
-	bankNum := bankID(block,
-		ds.cache.directory.WayAssociativity(), len(ds.cache.dirToBankBuffers))
-	bankBuf := ds.cache.dirToBankBuffers[bankNum]
-	if !bankBuf.CanPush() {
-		return false
-	}
-
-	m := ds.cache.mshr.Add(trans.read.PID, cacheLineID)
-	trans.mshrEntry = m
-	trans.block = block
-	block.IsLocked = true
-	block.Tag = cacheLineID
-	block.PID = trans.read.PID
-	block.IsValid = true
-	ds.cache.directory.Visit(block)
+func (ds *directoryStage) evict(trans *transaction, victim *cache.Block) bool {
+	...
 
 	ds.buf.Pop()
-	trans.action = writeBufferFetch
-	trans.fetchPID = trans.read.PID
-	trans.fetchAddress = cacheLineID
 	bankBuf.Push(trans)
+	ds.cache.evictingList[trans.victim.Tag] = true
 
-	m.Block = block
-	m.Requests = append(m.Requests, trans)
-	return true
+	...
 }
 ```
 
-End-to-end, a read miss proceeds as:
-- Directory allocates MSHR and selects a victim; evict-if-dirty else fetch.
-- Bank reads victim data (for eviction) and forwards to the write buffer.
-- Write buffer writes back dirty data and fetches the missed line (from local eviction data if available, otherwise from the lower memory).
-- Bank installs fetched data into the array and wakes the MSHR.
-- MSHR returns `DataReadyRsp` for the read and drains any coalesced writes.
+
+
+Key details:
+
+- **Transaction programming.** `updateTransForEviction` (below) snapshots the old line into `trans.victim` so the bank can write it back, then decides whether the eviction also needs a **fetch** of the new line:
+  - For **reads**, a fetch is always required.
+  - For **writes**, a fetch is required unless the write covers the **full line** (in which case we can allocate and write directly).
+- **Victim metadata.** We retag and lock the directory block for the incoming line to reserve the slot and preserve ordering. We also mark the old tag in `evictingList` to prevent racy hits while the eviction is in flight.
+
+```go
+func (ds *directoryStage) updateTransForEviction(
+    trans *transaction, victim *cache.Block, pid vm.PID, cacheLineID uint64,
+) {
+    trans.action = bankEvictAndFetch
+    trans.victim = &cache.Block{ PID: victim.PID, Tag: victim.Tag, CacheAddress: victim.CacheAddress, DirtyMask: victim.DirtyMask }
+    trans.block = victim
+    trans.evictingPID = trans.victim.PID
+    trans.evictingAddr = trans.victim.Tag
+    trans.evictingDirtyMask = victim.DirtyMask
+
+    if ds.evictionNeedFetch(trans) {
+        mshrEntry := ds.cache.mshr.Add(pid, cacheLineID)
+        mshrEntry.Block = victim
+        mshrEntry.Requests = append(mshrEntry.Requests, trans)
+        trans.mshrEntry = mshrEntry
+        trans.fetchPID = pid
+        trans.fetchAddress = cacheLineID
+        trans.action = bankEvictAndFetch
+    } else {
+        trans.action = bankEvictAndWrite
+    }
+}
+```
+
+The helper below encodes the policy described above:
+
+```go
+func (ds *directoryStage) evictionNeedFetch(t *transaction) bool {
+    if t.write == nil { return true }                 // read → must fetch
+    if ds.isWritingFullLine(t.write) { return false } // full-line write → no fetch
+    return true                                       // partial-line write → fetch
+}
+```
+
+#### Direct fetch path
+
+If the victim is not dirty, the directory pre‑allocates the block and enqueues a **fetch** command to the bank:
+
+```go
+func (ds *directoryStage) fetch(trans *transaction, block *cache.Block) bool {
+    // Determine target set/bank and verify space.
+    bankNum := bankID(block, ds.cache.directory.WayAssociativity(), len(ds.cache.dirToBankBuffers))
+    bankBuf := ds.cache.dirToBankBuffers[bankNum]
+    if !bankBuf.CanPush() { return false }
+
+    // Create the MSHR entry and pre-allocate the directory block.
+    mshrEntry := ds.cache.mshr.Add(pid, cacheLineID)
+    trans.mshrEntry = mshrEntry
+    trans.block = block
+    block.IsLocked = true
+    block.Tag = cacheLineID
+    block.PID = pid
+    block.IsValid = true
+    ds.cache.directory.Visit(block)
+
+    // Program the bank command and dispatch.
+    ds.buf.Pop()
+    trans.action = writeBufferFetch
+    trans.fetchPID = pid
+    trans.fetchAddress = cacheLineID
+    bankBuf.Push(trans)
+
+    mshrEntry.Block = block
+    mshrEntry.Requests = append(mshrEntry.Requests, trans)
+
+    return true
+}
+```
+
+In short, **read miss** turns into either *Evict→(WriteBack)→Fetch* or a single *Fetch*, both flowing through the bank with an MSHR entry tracking completion and response fan‑out to all waiting transactions.
+
 
 ## Write
 
