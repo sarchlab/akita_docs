@@ -89,6 +89,55 @@ In total, we consider 7 different cases.
 - Write miss, full line
 - Write miss, partial line
 
+### At‑a‑glance case matrix
+
+| Case                               | Preconditions                                   | Directory action                                | Bank action                 | Write buffer action                 | MSHR |
+|------------------------------------|--------------------------------------------------|--------------------------------------------------|-----------------------------|-------------------------------------|------|
+| Read MSHR hit                      | Line tracked in MSHR                             | Append to MSHR entry                             | –                           | –                                   | keep |
+| Read hit                           | Block present, not locked                        | Program bank read                                | `bankReadHit`               | –                                   | –    |
+| Read miss – no eviction            | Victim clean and available                       | Fetch: add MSHR, pre‑alloc block                 | `writeBufferFetch`          | Issue read to bottom                | add  |
+| Read miss – need eviction          | Victim dirty and available                       | Evict then fetch                                 | `bankEvictAndFetch`         | Write dirty victim, then fetch      | add  |
+| Write MSHR hit                     | Line tracked in MSHR                             | Append to MSHR entry                             | –                           | –                                   | keep |
+| Write hit                          | Block present; not locked; no outstanding reads  | Program bank write                               | `bankWriteHit`              | –                                   | –    |
+| Write miss, full line              | Full‑line write; victim available                | If dirty: evict; else allocate and write         | `bankWriteHit`              | Flush dirty victim                  | –    |
+| Write miss, partial – no eviction  | Not full‑line; victim clean and available        | Fetch: add MSHR, pre‑alloc block                 | `writeBufferFetch`          | Issue read to bottom                | add  |
+| Write miss, partial – need eviction| Not full‑line; victim dirty and available        | Evict then fetch                                 | `bankEvictAndFetch`         | Write dirty victim, then fetch      | add  |
+
+### Common patterns and invariants
+
+- MSHR‑first policy: always check and append to MSHR before directory lookup.
+- Evicting guard: if a line is present in `evictingList`, skip processing it this tick.
+- Bank selection: compute `bank := bankID(block, wayAssoc, numBanks)` and verify `bankBuf.CanPush()` before dispatch.
+- Metadata updates: use `directory.Visit` to update LRU; set `block.IsLocked` while data is being fetched or written; update `block.Tag`, `block.PID`, `block.IsValid` when allocating.
+- Action programming: set `trans.block` and `trans.action` to direct downstream behavior (bank or write buffer).
+
+### Shared eviction path
+
+When eviction is required, directory prepares the victim and programs one of the eviction actions. The essential steps are:
+
+```go
+func (ds *directoryStage) evict(trans *transaction, victim *cache.Block) bool {
+    // Identify owning bank and ensure capacity
+    bankNum := bankID(victim, ds.cache.directory.WayAssociativity(), len(ds.cache.dirToBankBuffers))
+    bankBuf := ds.cache.dirToBankBuffers[bankNum]
+    if !bankBuf.CanPush() { return false }
+
+    // Determine request address/PID and compute cacheLineID
+    // ... select addr, pid ...
+
+    ds.updateTransForEviction(trans, victim, pid, cacheLineID)
+    ds.updateVictimBlockMetaData(victim, cacheLineID, pid)
+
+    ds.buf.Pop()
+    bankBuf.Push(trans)
+    ds.cache.evictingList[trans.victim.Tag] = true
+    return true
+}
+```
+
+`updateTransForEviction` decides whether a fetch is also needed (default) or a write‑only eviction suffices (full‑line write). `updateVictimBlockMetaData` locks and pre‑allocates the victim for the incoming line.
+
+
 ## Read
 
 Let's first take a look at the `doRead` method. 
@@ -407,10 +456,166 @@ The victim block metadata is updated to represent the new cache line address and
 
 ## Write
 
+After reads, writes follow a parallel decision flow: check MSHR first, then directory, and finally choose between write‑hit, write‑miss full line, or write‑miss partial line. The top‑level dispatcher is `doWrite`:
+
+```go
+func (ds *directoryStage) doWrite(trans *transaction) bool {
+    write := trans.write
+    cachelineID, _ := getCacheLineID(write.Address, ds.cache.log2BlockSize)
+
+    mshrEntry := ds.cache.mshr.Query(write.PID, cachelineID)
+    if mshrEntry != nil {
+        ok := ds.doWriteMSHRHit(trans, mshrEntry)
+        // tracing: "write-mshr-hit"
+        return ok
+    }
+
+    block := ds.cache.directory.Lookup(trans.write.PID, cachelineID)
+    if block != nil {
+        ok := ds.doWriteHit(trans, block)
+        if ok { /* tracing: "write-hit" */ }
+        return ok
+    }
+
+    ok := ds.doWriteMiss(trans)
+    if ok { /* tracing: "write-miss" */ }
+    return ok
+}
+```
+
 ### Write MSHR Hit
+
+If the line is already being fetched (MSHR hit), we append the write to the existing MSHR entry and let the MSHR stage handle merging once data arrives.
+
+```go
+func (ds *directoryStage) doWriteMSHRHit(
+    trans *transaction,
+    mshrEntry *cache.MSHREntry,
+) bool {
+    trans.mshrEntry = mshrEntry
+    mshrEntry.Requests = append(mshrEntry.Requests, trans)
+    ds.buf.Pop()
+    return true
+}
+```
 
 ### Write Hit
 
-### Write Miss, Full Line
+On a write hit, we must ensure the block is not locked and not currently serving readers (no outstanding read hits). Then we program a bank command to modify the line in place.
 
-### Write Miss, Partial Line
+```go
+func (ds *directoryStage) doWriteHit(
+    trans *transaction,
+    block *cache.Block,
+) bool {
+    if block.IsLocked || block.ReadCount > 0 { return false }
+    return ds.writeToBank(trans, block)
+}
+```
+
+`writeToBank` prepares the transaction for the bank and updates directory metadata:
+
+```go
+func (ds *directoryStage) writeToBank(
+    trans *transaction,
+    block *cache.Block,
+) bool {
+    numBanks := len(ds.cache.dirToBankBuffers)
+    bank := bankID(block, ds.cache.directory.WayAssociativity(), numBanks)
+    bankBuf := ds.cache.dirToBankBuffers[bank]
+    if !bankBuf.CanPush() { return false }
+
+    addr := trans.write.Address
+    cachelineID, _ := getCacheLineID(addr, ds.cache.log2BlockSize)
+
+    ds.cache.directory.Visit(block)
+    block.IsLocked = true
+    block.Tag = cachelineID
+    block.IsValid = true
+    block.PID = trans.write.PID
+    trans.block = block
+    trans.action = bankWriteHit
+
+    ds.buf.Pop()
+    bankBuf.Push(trans)
+    return true
+}
+```
+
+- **Locking**: the block is marked locked to prevent concurrent reads/writes while the bank stage completes the write.
+- **Action**: `bankWriteHit` instructs the bank to merge bytes and mark dirty.
+
+### Write Miss
+
+Writes that miss are split into two categories depending on whether they write a full cache line.
+
+```go
+func (ds *directoryStage) doWriteMiss(trans *transaction) bool {
+    write := trans.write
+    if ds.isWritingFullLine(write) { return ds.writeFullLineMiss(trans) }
+    return ds.writePartialLineMiss(trans)
+}
+```
+
+#### Full‑line write miss
+
+If the write covers the entire line (all bytes dirty), we can allocate the line without fetching. However, if the replacement victim is valid and dirty, we must evict it first.
+
+```go
+func (ds *directoryStage) writeFullLineMiss(trans *transaction) bool {
+    write := trans.write
+    cachelineID, _ := getCacheLineID(write.Address, ds.cache.log2BlockSize)
+
+    victim := ds.cache.directory.FindVictim(cachelineID)
+    if victim.IsLocked || victim.ReadCount > 0 { return false }
+
+    if ds.needEviction(victim) {
+        return ds.evict(trans, victim)
+    }
+    return ds.writeToBank(trans, victim)
+}
+```
+
+Notes:
+
+- If eviction is needed, `evict` will program a `bankEvictAndWrite` action (no fetch required for full‑line writes). The write buffer will send the eviction down and a `bankWriteHit` to the bank.
+- Otherwise, we directly allocate the victim for this line via `writeToBank`.
+
+#### Partial‑line write miss
+
+For partial writes, we must fetch the existing line from lower memory before merging the new bytes. We also need MSHR space to track the miss.
+
+```go
+func (ds *directoryStage) writePartialLineMiss(trans *transaction) bool {
+    write := trans.write
+    cachelineID, _ := getCacheLineID(write.Address, ds.cache.log2BlockSize)
+
+    if ds.cache.mshr.IsFull() { return false }
+
+    victim := ds.cache.directory.FindVictim(cachelineID)
+    if victim.IsLocked || victim.ReadCount > 0 { return false }
+
+    if ds.needEviction(victim) { return ds.evict(trans, victim) }
+    return ds.fetch(trans, victim)
+}
+```
+
+If eviction is needed (dirty victim), we evict first, then fetch the new line (the `evict` helper will set up MSHR and the appropriate actions). Otherwise, we set up a direct fetch via `fetch`, which allocates the MSHR, pre‑allocates the block, and programs a `writeBufferFetch` command.
+
+### Full‑line detection
+
+Full‑line writes are detected by write length and dirty mask coverage:
+
+```go
+func (ds *directoryStage) isWritingFullLine(write *mem.WriteReq) bool {
+    if len(write.Data) != (1 << ds.cache.log2BlockSize) { return false }
+    if write.DirtyMask != nil {
+        for _, dirty := range write.DirtyMask {
+            if !dirty { return false }
+        }
+    }
+    return true
+}
+```
+
+This allows the directory to skip fetches and MSHR allocation when the incoming write completely overwrites a line.
