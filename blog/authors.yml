@@ -15,3 +15,21 @@ xuzhongwang:
   socials:
     github: xuzhongwm
   page: true
+
+huizhizhao:
+  name: Huizhi Zhao
+  title: Undergraduate Student
+  url: https://sarchlab.org/huizhizhao
+  image_url: https://media.licdn.com/dms/image/D4D03AQH8b1d2f3jQ9g/profile-displayphoto-shrink_800_800/0/1730063518631?e=1754524800&v=beta&t=6k5J7Xq2c4Zy3Yp5a6m8x9z7F1n9G8V7Wl4u1k5K2hE
+  socials:
+    github: sylvzhz
+  page: true
+
+daoxuanxu:
+  name: Daoxuan Xu
+  title: Undergraduate Student
+  url: https://sarchlab.org/daoxuanxu
+  image_url: https://media.licdn.com/dms/image/D4D03AQH8b1d2f3jQ9g/profile-displayphoto-shrink_800_800/0/1730063518631?e=1754524800&v=beta&t=6k5J7Xq2c4Zy3Yp5a6m8x9z7F1n9G8V7Wl4u1k5K2hE
+  socials:
+    github: DX990307
+  page: true
