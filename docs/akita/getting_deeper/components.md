@@ -167,22 +167,22 @@ We first define 2 messages, a Ping Message and a Ping Response. The only informa
 
 ```go
 type PingMsg struct {
-    akita.MsgMeta
+    sim.MsgMeta
 
     SeqID int
 }
 
-func (p *PingMsg) Meta() *akita.MsgMeta {
+func (p *PingMsg) Meta() *sim.MsgMeta {
     return &p.MsgMeta
 }
 
 type PingRsp struct {
-    akita.MsgMeta
+    sim.MsgMeta
 
     SeqID int
 }
 
-func (p *PingRsp) Meta() *akita.MsgMeta {
+func (p *PingRsp) Meta() *sim.MsgMeta {
     return &p.MsgMeta
 }
 
@@ -192,8 +192,8 @@ We need to tell the agent when to initiate a ping. We create an event for this. 
 
 ```go
 type StartPingEvent struct {
-    *akita.EventBase
-    Dst akita.Port
+    *sim.EventBase
+    Dst sim.Port
 }
 ```
 
@@ -201,7 +201,7 @@ Also, when an agent receives a ping message, it needs to trigger an event that r
 
 ```go
 type RspPingEvent struct {
-    *akita.EventBase
+    *sim.EventBase
     pingMsg *PingMsg
 }
 ```
@@ -210,19 +210,19 @@ With all the events and messages defined, we can now start to implement the agen
 
 ```go
 type PingAgent struct {
-    *akita.ComponentBase
+    *sim.ComponentBase
 
-    Engine  akita.Engine
-    OutPort akita.Port
+    Engine  sim.Engine
+    OutPort sim.Port
 
-    startTime []akita.VTimeInSec
+    startTime []sim.VTimeInSec
     nextSeqID int
 }
 
-func NewPingAgent(name string, engine akita.Engine) *PingAgent {
+func NewPingAgent(name string, engine sim.Engine) *PingAgent {
     agent := &PingAgent{Engine: engine}
-    agent.ComponentBase = akita.NewComponentBase(name)
-    agent.OutPort = akita.NewLimitNumMsgPort(agent, 4, name+".OutPort")
+    agent.ComponentBase = sim.NewComponentBase(name)
+    agent.OutPort = sim.NewLimitNumMsgPort(agent, 4, name+".OutPort")
     return agent
 }
 ```
@@ -236,7 +236,7 @@ A component needs to implement 3 methods.
 The first one is called `NotifyPortFree`. It is called when a port's buffer frees up at least one slot. In this example, we do not need to use this function. So we leave it empty. We will see how it is used to improve simulation performance in the next tutorial.
 
 ```go
-func (p PingAgent) NotifyPortFree(now akita.VTimeInSec, port akita.Port) {
+func (p PingAgent) NotifyPortFree(now sim.VTimeInSec, port sim.Port) {
     // Do nothing
 }
 ```
@@ -244,7 +244,7 @@ func (p PingAgent) NotifyPortFree(now akita.VTimeInSec, port akita.Port) {
 The second is `NotifyRecv`. A port calls this function when the port receives an incoming message. In this function, we first extract the message from the port's buffer with the `Retrieve` function. Since the PingAgent can process both `PingMsg` and `PingRsp`, we use a [type switch](https://tour.golang.org/methods/16) to differentiate the message types and define what happens when the agent receives each type of messages.
 
 ```go
-func (p *PingAgent) NotifyRecv(now akita.VTimeInSec, port akita.Port) {
+func (p *PingAgent) NotifyRecv(now sim.VTimeInSec, port sim.Port) {
     p.Lock()
     defer p.Unlock()
 
@@ -265,9 +265,9 @@ When programming Akita, we follow a convention: we "process messages" and "handl
 When PingMsg arrives, we schedule an event 2 seconds later.
 
 ```go
-func (p *PingAgent) processPingMsg(now akita.VTimeInSec, msg *PingMsg) {
+func (p *PingAgent) processPingMsg(now sim.VTimeInSec, msg *PingMsg) {
     rspEvent := RspPingEvent{
-        EventBase: akita.NewEventBase(now+2, p),
+        EventBase: sim.NewEventBase(now+2, p),
         pingMsg:   msg,
     }
     p.Engine.Schedule(rspEvent)
@@ -277,7 +277,7 @@ func (p *PingAgent) processPingMsg(now akita.VTimeInSec, msg *PingMsg) {
 When PingRsp arrives, we find out the send time and print the ping latency.
 
 ```go
-func (p *PingAgent) processPingRsp(now akita.VTimeInSec, msg *PingRsp) {
+func (p *PingAgent) processPingRsp(now sim.VTimeInSec, msg *PingRsp) {
     seqID := msg.SeqID
     startTime := p.startTime[seqID]
     duration := now - startTime
@@ -289,7 +289,7 @@ func (p *PingAgent) processPingRsp(now akita.VTimeInSec, msg *PingRsp) {
 A PingAgent should also be able to handle 2 types of events. One is the `RspPingEvent` scheduled when the Agent process a PingMsg. The other one is the `StartPingEvent`, which will be scheduled by the main function later. So, we define the third function. Similarly, we use the type switch to determine the type of the event.
 
 ```go
-func (p *PingAgent) Handle(e akita.Event) error {
+func (p *PingAgent) Handle(e sim.Event) error {
     p.Lock()
     defer p.Unlock()
 
@@ -344,8 +344,8 @@ Remember, we do not allow inter-component field access? Locking is very simple a
 Now the only task is to write the main function and connect everything. In this example, we define an Engine, a connection, and two PingAgents.
 
 ```go
-engine := akita.NewSerialEngine()
-conn := akita.NewDirectConnection("Conn", engine, 1*akita.GHz)
+engine := sim.NewSerialEngine()
+conn := sim.NewDirectConnection("Conn", engine, 1*sim.GHz)
 agentA := NewPingAgent("AgentA", engine)
 agentB := NewPingAgent("AgentB", engine)
 ```
@@ -361,11 +361,11 @@ Finally, we schedule two events and start the simulation. You should see the out
 
 ```go
 e1 := StartPingEvent{
-    EventBase: akita.NewEventBase(1, agentA),
+    EventBase: sim.NewEventBase(1, agentA),
     Dst:       agentB.OutPort,
 }
 e2 := StartPingEvent{
-    EventBase: akita.NewEventBase(3, agentA),
+    EventBase: sim.NewEventBase(3, agentA),
     Dst:       agentB.OutPort,
 }
 engine.Schedule(e1)
